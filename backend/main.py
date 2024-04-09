@@ -1,3 +1,4 @@
+import requests
 import time
 from flask import Flask, request, url_for, session, redirect
 from spotipy.oauth2 import SpotifyOAuth
@@ -10,6 +11,18 @@ app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
 app.secret_key = 'abcd123'
 #authentication token 
 TOKEN_INFO = 'token_info'
+def get_token():
+    token_info = session.get(TOKEN_INFO, None)
+    #if theres no token or 60 seconds past before token refresh ti and send it
+    if not token_info:
+        raise Exception("No token info")
+    now = int(time.time())
+    is_expired = token_info['expires_at'] - now < 60
+    if is_expired:
+        spotify_oauth = create_spotify_oauth()
+        token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
+        session[TOKEN_INFO] = token_info
+    return token_info
 
 @app.route('/')
 def login():
@@ -40,24 +53,39 @@ def get_top_artists():
         #lc for getting the artist in the top artiist
         top_artists = [artist['name'] for artist in results['items']]
         #printing the array of top artist
-        return f"Your top artists: {top_artists}"
-    except:
-        #if doesnt work redrect the user to the no login page
-        print("User not logged in")
-        return redirect('/')
+        #hometown 
+        hometown=[]
+        #google search api key
+        API_KEY='AIzaSyD4V8kQUETVnk3d6kca1mDXKlF2NqQ1RDM'
+        #search engine api key
+        SEARCH_ENGINE='11f4e477034c3497b'
+        #for loop on top artist 
+        for x in top_artists:
+            # the actual search we put into the api
+            query=x+'hometown'
+            #url access to the api
+            url='https://www.googleapis.com/customsearch/v1'
+            params={
+                #search
+                'q': query,
+                #key bs
+                'key':API_KEY,
+                'cx':SEARCH_ENGINE
+        }
+            #request the api with the current search paramets
+            response=requests.get(url,params=params)
+            #gets the result from the request
+            result=response.json()
+            #checks the items in the dictionary
+            if 'items' in result and len(result['items']) > 0:
+                #checks the key with the hometown and returns the entire scentence
+                hometown.append(result['items'][0]['snippet'])
+        return hometown
+    except Exception as e:
+        print("Error:", e)
+        return []
+        
 
-def get_token():
-    token_info = session.get(TOKEN_INFO, None)
-    #if theres no token or 60 seconds past before token refresh ti and send it
-    if not token_info:
-        raise Exception("No token info")
-    now = int(time.time())
-    is_expired = token_info['expires_at'] - now < 60
-    if is_expired:
-        spotify_oauth = create_spotify_oauth()
-        token_info = spotify_oauth.refresh_access_token(token_info['refresh_token'])
-        session[TOKEN_INFO] = token_info
-    return token_info
 
 def create_spotify_oauth():
     return SpotifyOAuth(
@@ -68,8 +96,10 @@ def create_spotify_oauth():
         scope='user-top-read'
     )
 
+ 
+
 if __name__ == '__main__':
-    #fix the host and port issues so it works on other users computers
+    #fix the host and port issues so it works  on other users computers
     #deploy on the interentt
     #do a gitpull a run locally
     #implement database logic mongodb or sqL
