@@ -6,6 +6,7 @@ import spotipy
 
 app = Flask(__name__)
 #creating a temp cookie to load faster
+
 app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
 #creating a dummy key to access
 app.secret_key = 'abcd123'
@@ -33,13 +34,12 @@ def login():
 
 @app.route('/redirect')
 def redirect_page():
-     #create a new session
-    session.clear()
-    #requestinig the actual token under
+    # Requesting the actual token under
     code = request.args.get('code')
     token_info = create_spotify_oauth().get_access_token(code)
     session[TOKEN_INFO] = token_info
     return redirect(url_for('get_top_artists', _external=True))
+
 
 @app.route('/get_top_artists')
 def get_top_artists():
@@ -54,7 +54,7 @@ def get_top_artists():
         top_artists = [artist['name'] for artist in results['items']]
         #printing the array of top artist
         #hometown 
-        hometown=[]
+        images=[]
         #google search api key
         API_KEY='AIzaSyD4V8kQUETVnk3d6kca1mDXKlF2NqQ1RDM'
         #search engine api key
@@ -62,7 +62,7 @@ def get_top_artists():
         #for loop on top artist 
         for x in top_artists:
             # the actual search we put into the api
-            query=x+'hometown'
+            query=x
             #url access to the api
             url='https://www.googleapis.com/customsearch/v1'
             params={
@@ -70,17 +70,17 @@ def get_top_artists():
                 'q': query,
                 #key bs
                 'key':API_KEY,
-                'cx':SEARCH_ENGINE
+                'cx':SEARCH_ENGINE,
+                'searchType':'image'
         }
             #request the api with the current search paramets
             response=requests.get(url,params=params)
             #gets the result from the request
             result=response.json()
-            #checks the items in the dictionary
-            if 'items' in result and len(result['items']) > 0:
-                #checks the key with the hometown and returns the entire scentence
-                hometown.append(result['items'][0]['snippet'])
-        return hometown
+            #return the url of a the image
+            images.append(result['items'][0]['link'])
+            #EVAN images holds all the urls to the actual pictures to your top5 artist so access this vairable in index.html 
+        return images
     except Exception as e:
         print("Error:", e)
         return []
