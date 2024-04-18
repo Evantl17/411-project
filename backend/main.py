@@ -1,6 +1,6 @@
 import requests
 import time
-from flask import Flask, request, url_for, session, redirect
+from flask import Flask, request, url_for, session,render_template, redirect
 from spotipy.oauth2 import SpotifyOAuth
 import spotipy
 
@@ -80,10 +80,12 @@ def get_top_artists():
             #return the url of a the image
             images.append(result['items'][0]['link'])
             #EVAN images holds all the urls to the actual pictures to your top5 artist so access this vairable in index.html 
-        return images
+            # if you want to run it so it works remove everything on the next line except return images
+        return render_template('index.html', images=images)
     except Exception as e:
         print("Error:", e)
-        return []
+        #if you want to run it so it works remove everthing and return images
+        return render_template('index.html', images=[])
         
 
 
