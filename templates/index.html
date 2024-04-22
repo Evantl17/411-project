@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block header %} 
+<h1 class="text-center">Spotify Web App</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        {% for link in images %}
+            <img src="{{ link }}" alt="text">
+        {% endfor %}
+    </div>
+{% endblock %}
