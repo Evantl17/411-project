@@ -4,11 +4,13 @@ Our project is a Spotify Web Application that uses [Flask](https://flask.pallets
 
 Our projcet will give the user an overview of their favorite artists and some information about them!
 
+Begin by cloning the github repository. Then do the following steps!
+
 ## Installing Packages
 
 To use our project you must do the following. In the project directory, you can run:
 
-### `pip install flask, requests, spotipy, spotipy.oauth2, python-dotenv, virtualenv`
+### `pip install flask requests spotipy python-dotenv virtualenv`
 
 This installs all of the packages needed.
 
@@ -17,7 +19,7 @@ This installs all of the packages needed.
 First, you need to start the environment and the flask application:
 
 ```
-virutalenv env
+virtualenv env
 source env/bin/activate
 export FLASK_APP=main
 ```
