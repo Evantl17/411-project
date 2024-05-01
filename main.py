@@ -9,8 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-if os.path.exists(os.path.join(basedir, 'database.db')):
-    os.remove(os.path.join(basedir, 'database.db'))
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] =\
@@ -144,7 +142,11 @@ def get_top_artists():
             count+= 1
 
         add_user()
-        user = get_users()
+        users = get_users()
+        user = []
+        user.append(users[len(users)-1]['username'])
+        user.append(users[len(users)-1]['playlists'])
+        user.append(users[len(users)-1]['followers'])
         print(user)
         return render_template('index.html', artists=artists, user=user)
     except Exception as e:

@@ -13,11 +13,11 @@
     <div class="container">
         <h3 class="text-center text-white">Here is some information we found about you!</h3>
         <div class="text-center text-white">
-            {% for i in user %}
-            <p>Your username is {{ i.username }}</p>
-            <p>You have {{ i.playlists }} playlists</p>
-            <p>You have {{ i.followers}} followers!</p>
-            {% endfor %}
+
+            <p>Your username is {{ user[0] }}</p>
+            <p>You have {{ user[1] }} playlists</p>
+            <p>You have {{ user[2]}} followers!</p>
+
         </div>
         <h5 class="text-center text-white">Here are your top five most played artists and some information about them!</h5>
     </div>
