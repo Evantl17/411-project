@@ -10,7 +10,7 @@ Begin by cloning the github repository. Then do the following steps!
 
 To use our project you must do the following. In the project directory, you can run:
 
-### `pip install flask requests spotipy python-dotenv virtualenv`
+### `pip install Flask Flask-SQLAlchemy requests spotipy python-dotenv virtualenv`
 
 This installs all of the packages needed.
 
@@ -50,7 +50,7 @@ To run the application simply type
 
 into the console and it should bring you to our webpage!
 
-## Other Commands to Use
+## Other Helpful Things
 
 If you would like to add your own code to our program the following commands might be helpful! You can run these in your terminal:
 
@@ -60,3 +60,5 @@ If you would like to add your own code to our program the following commands mig
     kill -9 $(lsof -i :5000 -t) #run after each run of the application to close the ports
 
 ```
+
+Also, whenever you run this applciation it will create a file called .cache which you are going to want to delete each time. If you have this file and try to let a new person use the applciation it will still show your results.

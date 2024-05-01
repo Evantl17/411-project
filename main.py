@@ -5,8 +5,19 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import spotipy
 import os
 from dotenv import load_dotenv
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+if os.path.exists(os.path.join(basedir, 'database.db')):
+    os.remove(os.path.join(basedir, 'database.db'))
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+        'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
 #creating a temp cookie to load faster
 
 app.config['SESSION_COOKIE_NAME'] = 'Spotify Cookie'
@@ -15,13 +26,23 @@ app.secret_key = 'abcd123'
 #authentication token 
 TOKEN_INFO = 'token_info'
 load_dotenv()
-class Artist:
+class Artist():
     def __init__(self, name, img_url, albums, tracks, username):
         self.name = name
         self.img_url = img_url
         self.albums = albums
         self.tracks = tracks
         self.username = username
+    
+#User database information
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key= True)
+    username = db.Column(db.String(100))
+    followers = db.Column(db.Integer)
+    playlists = db.Column(db.Integer)
+
+    def __repr__(self):
+        return f'<Student {self.username}>'
     
 
 
@@ -122,13 +143,64 @@ def get_top_artists():
             #increase count for the albums
             count+= 1
 
-        return render_template('index.html', artists=artists)
+        add_user()
+        user = get_users()
+        print(user)
+        return render_template('index.html', artists=artists, user=user)
     except Exception as e:
         print("Error:", e)
         #if you want to run it so it works remove everthing and return images
         return render_template('index.html', artists=[])
         
+@app.route('/add', methods=['POST'])
+def add_user():
+    try:
+        # Create database tables if they don't exist
+        db.create_all()
 
+        # Get Spotify token
+        token_info = get_token()
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+
+        # Get user information
+        user_info = sp.current_user()
+        current_user = user_info['id']
+
+        # Get follower count
+        follower_count = user_info['followers']['total']
+
+        # Get number of playlists
+        user_playlists = sp.current_user_playlists()
+        total_playlists = user_playlists['total']
+
+        # Create user object and add to database
+        user = User(username=current_user, followers=follower_count, playlists=total_playlists)
+        db.session.add(user)
+        db.session.commit()
+
+        # Redirect to the index page or any other page
+        return redirect(url_for('get_top_artists'))
+
+    except Exception as e:
+        print("Error:", e)
+        # Handle error appropriately, for example, return a JSON response
+        return "databse error"
+
+
+@app.route('/get_all_users')
+def get_users():
+    users = get_all_users()
+    user_info = []
+    for user in users:
+        user_info.append({
+            'username': user.username,
+            'followers': user.followers,
+            'playlists': user.playlists
+        })
+    return user_info
+
+def get_all_users():
+    return User.query.all()
 
 def create_spotify_oauth():
     return SpotifyOAuth(

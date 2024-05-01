@@ -1,17 +1,27 @@
 {% extends 'base.html' %}
 
-{% block header %} 
-<h1 class="text-center">Spotify Web App</h1>
-{% endblock %}
+
 
 {% block content %}
     <div class="container">
         {% if artists %}
-        <p>Hello, {{ artists[0].username }}! Welcome to our Spotify Web Application. </p>
+        <h1 class="text-center text-white">Hello, {{ artists[0].username }}! Welcome to our Spotify Web Application. </h1>
         {% else %}
         <p>No username found.</p>
         {% endif %}
     </div>
+    <div class="container">
+        <h3 class="text-center text-white">Here is some information we found about you!</h3>
+        <div class="text-center text-white">
+            {% for i in user %}
+            <p>Your username is {{ i.username }}</p>
+            <p>You have {{ i.playlists }} playlists</p>
+            <p>You have {{ i.followers}} followers!</p>
+            {% endfor %}
+        </div>
+        <h5 class="text-center text-white">Here are your top five most played artists and some information about them!</h5>
+    </div>
+
     <div class="container">
 
             {% for i in artists %}
@@ -20,7 +30,7 @@
                 <img src="{{ i.img_url }}" class="img-thumbnail rounded" alt="text">
             </div>
             <div class="col">
-                <h1 class="text-center">{{ i.name }}</h1>
+                <h1 class="text-center text-white">{{ i.name }}</h1>
                 <h4>Most Recent Albums: </h4>
                 <ul class=" list-group bg-gradient-secondary ">
                     {% for album in i.albums%} 
